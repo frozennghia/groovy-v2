@@ -2,7 +2,7 @@
 replacing the good old groovy discord bot
 
 
-#How to get started
+# How to get started
 pip install -u pipenv
 pipenv install
 
