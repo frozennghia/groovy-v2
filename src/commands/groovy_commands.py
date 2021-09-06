@@ -48,7 +48,8 @@ async def play(ctx, song_url):
         voice_channel = server.voice_client
         async with ctx.typing():
             filename = await yt_wrapper.YTDLSource.from_url(song_url, loop=bot.loop)
-            voice_channel.play(discord.FFmpegPCMAudio(executable="ffmpeg.exe", source=filename))
+            # this line only works for mac, will need to change the path to the ffmpeg executable for windows
+            voice_channel.play(discord.FFmpegPCMAudio(executable="/usr/local/bin/ffmpeg", source=filename))
         await ctx.send('**Now playing:** {}'.format(filename))
         await wait_to_finish(ctx)
     else:
