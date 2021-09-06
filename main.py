@@ -12,6 +12,7 @@ def main(name):
     bot = commands.Bot(command_prefix="-", intents=intents)
     youtube_dl.utils.bug_reports_message = lambda: ''
     song_queue = asyncio.Queue()
+    currently_playing = False
 
     ytdl_format_options = {
         'format': 'bestaudio/best',
@@ -68,7 +69,6 @@ def main(name):
 
     @bot.command(name='play', help='Play song')
     async def queue_play(ctx, url):
-        await join(ctx)
         song_queue.put_nowait([ctx, url])
         voice_client = ctx.message.guild.voice_client
         if voice_client.is_playing():
