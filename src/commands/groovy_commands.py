@@ -37,7 +37,8 @@ async def leave(ctx):
 
 
 @bot.command(name='play', help='Play song')
-async def queue_play(ctx, url, is_skipped=False):
+async def queue_play(ctx, *args, is_skipped=False):
+    url = ' '.join(args)
     await join(ctx)
     if not is_skipped:
         song_queue.put_nowait([ctx, url])
@@ -50,6 +51,7 @@ async def queue_play(ctx, url, is_skipped=False):
 
 
 async def play(ctx, song_url):
+    print(song_url)
     voice_client = ctx.message.guild.voice_client
     if ctx.message.author.voice and not voice_client.is_playing():
         server = ctx.message.guild
@@ -63,6 +65,8 @@ async def play(ctx, song_url):
     else:
         await ctx.send("Unknown Error")
 
+def format_url(url):
+    return url.replace(' ', '%20')
 
 async def wait_to_finish(ctx):
     voice_client = ctx.message.guild.voice_client
@@ -74,7 +78,7 @@ async def wait_to_finish(ctx):
 async def skip(ctx):
     if is_currently_playing(ctx):
         await stop(ctx)
-        asyncio.create_task(queue_play(ctx, "", True))
+        asyncio.create_task(queue_play(ctx, "", is_skipped=True))
 
 @bot.command(name='pause', help='This command pauses the song')
 async def pause(ctx):
