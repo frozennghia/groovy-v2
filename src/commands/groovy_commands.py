@@ -9,6 +9,7 @@ from discord.ext.commands import bot
 intents = discord.Intents().all()
 song_queue = asyncio.Queue()
 bot = commands.Bot(command_prefix="-", intents=intents)
+bot.is_connected = False
 
 @bot.command(name='join', help='Tells the bot to join the voice channel')
 async def join(ctx):
@@ -16,8 +17,11 @@ async def join(ctx):
         await ctx.send("{} is not connected to a voice channel".format(ctx.message.author.name))
         return
     else:
+        if bot.is_connected:
+            return
         channel = ctx.message.author.voice.channel
     await channel.connect()
+    bot.is_connected = True
 
 
 @bot.command(name='leave', help='To make the bot leave the voice channel')
@@ -31,6 +35,7 @@ async def leave(ctx):
 
 @bot.command(name='play', help='Play song')
 async def queue_play(ctx, url):
+    await join(ctx)
     song_queue.put_nowait([ctx, url])
     voice_client = ctx.message.guild.voice_client
     if voice_client.is_playing():
@@ -87,7 +92,3 @@ async def stop(ctx):
         await voice_client.stop()
     else:
         await ctx.send("The bot is not playing anything at the moment.")
-
-
-
-
