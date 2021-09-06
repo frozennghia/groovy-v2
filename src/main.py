@@ -1,18 +1,16 @@
 import asyncio
 import os
 import discord
-from discord.ext import commands, tasks
+from discord.ext import commands
 import youtube_dl
 
 
-def main(name):
+def main():
     DISCORD_TOKEN = os.getenv('DISCORD_TOKEN')
     intents = discord.Intents().all()
-    client = discord.Client(intents=intents)
     bot = commands.Bot(command_prefix="-", intents=intents)
     youtube_dl.utils.bug_reports_message = lambda: ''
     song_queue = asyncio.Queue()
-    currently_playing = False
 
     ytdl_format_options = {
         'format': 'bestaudio/best',
@@ -25,10 +23,6 @@ def main(name):
         'no_warnings': True,
         'default_search': 'auto',
         'source_address': '0.0.0.0'  # bind to ipv4 since ipv6 addresses cause issues sometimes
-    }
-
-    ffmpeg_options = {
-        'options': '-vn'
     }
 
     ytdl = youtube_dl.YoutubeDL(ytdl_format_options)
@@ -124,4 +118,4 @@ def main(name):
 
 
 if __name__ == '__main__':
-    main('PyCharm')
+    main()
