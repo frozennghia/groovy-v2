@@ -8,9 +8,9 @@ from discord.ext.commands import bot
 from src.youtube_wrap import yt_wrapper
 
 intents = discord.Intents().all()
-song_queue = asyncio.Queue()
 bot = commands.Bot(command_prefix="-", intents=intents)
 bot.is_connected = False
+bot.song_queue = asyncio.Queue()
 
 
 @bot.command(name='join', help='Tells the bot to join the voice channel')
@@ -41,12 +41,12 @@ async def queue_play(ctx, *args, is_skipped=False):
     url = ' '.join(args)
     await join(ctx)
     if not is_skipped:
-        song_queue.put_nowait([ctx, url])
+        bot.song_queue.put_nowait([ctx, url])
     if is_currently_playing(ctx):
         await ctx.send('Queued {}'.format(url))
         return
-    while not song_queue.empty():
-        next_song = await song_queue.get()
+    while not bot.song_queue.empty():
+        next_song = await bot.song_queue.get()
         await asyncio.create_task(play(next_song[0], next_song[1]))
 
 
@@ -58,7 +58,7 @@ async def play(ctx, song_url):
         async with ctx.typing():
             filename = await yt_wrapper.YTDLSource.from_url(song_url, loop=bot.loop)
             # this line only works for mac, will need to change the path to the ffmpeg executable for windows
-            voice_channel.play(discord.FFmpegPCMAudio(executable="/usr/local/bin/ffmpeg", source=filename))
+            voice_channel.play(discord.FFmpegPCMAudio(executable="ffmpeg.exe", source=filename))
         await ctx.send('**Now playing:** {}'.format(format_song_name(filename)))
         await wait_to_finish(ctx)
     else:
@@ -108,6 +108,14 @@ async def stop(ctx):
         voice_client.stop()
     else:
         await ctx.send("The bot is not playing anything at the moment.")
+
+
+@bot.command(name='list', help='List all of the songs in the queue')
+async def list_songs(ctx):
+    for i in range(bot.song_queue.qsize()):
+        song_temp = await bot.song_queue.get()
+        await ctx.send('Songs Queued:'.format(str(song_temp[1])))
+        bot.song_queue.put_nowait(song_temp)
 
 
 def is_currently_playing(ctx):
