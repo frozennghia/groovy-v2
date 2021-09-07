@@ -110,7 +110,17 @@ async def stop(ctx):
         await ctx.send("The bot is not playing anything at the moment.")
 
 
-
 def is_currently_playing(ctx):
     voice_client = ctx.message.guild.voice_client
     return voice_client.is_playing()
+
+
+@bot.command(name='list', help='Lists all songs')
+async def list_songs(ctx):
+    result_string = ''
+    for i in range(bot.song_queue.qsize()):
+        song = await bot.song_queue.get()
+        result_string += song[1]
+        result_string += '\n'
+        bot.song_queue.put_nowait(song)
+    await ctx.send(result_string)
