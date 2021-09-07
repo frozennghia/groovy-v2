@@ -58,7 +58,7 @@ async def play(ctx, song_url):
         async with ctx.typing():
             filename = await yt_wrapper.YTDLSource.from_url(song_url, loop=bot.loop)
             # this line only works for mac, will need to change the path to the ffmpeg executable for windows
-            voice_channel.play(discord.FFmpegPCMAudio(executable="/usr/local/bin/ffmpeg", source=filename))
+            voice_channel.play(discord.FFmpegPCMAudio(executable="ffmpeg.exe", source=filename))
         await ctx.send('**Now playing:** {}'.format(format_song_name(filename)))
         await wait_to_finish(ctx)
     else:
@@ -114,12 +114,13 @@ def is_currently_playing(ctx):
     voice_client = ctx.message.guild.voice_client
     return voice_client.is_playing()
 
+
 @bot.command(name='list', help='Lists all songs')
-async def list(ctx):
-    resultString = ''
+async def list_songs(ctx):
+    result_string = ''
     for i in range(bot.song_queue.qsize()):
         song = bot.song_queue.get()
-        resultString += song[1]
-        resultString += '\n'
+        result_string += song[1]
+        result_string += '\n'
         bot.song_queue.put_nowait(song)
-    ctx.send(resultString)
+    ctx.send(result_string)
