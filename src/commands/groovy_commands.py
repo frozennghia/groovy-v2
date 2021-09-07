@@ -51,7 +51,6 @@ async def queue_play(ctx, *args, is_skipped=False):
 
 
 async def play(ctx, song_url):
-    print(song_url)
     voice_client = ctx.message.guild.voice_client
     if ctx.message.author.voice and not voice_client.is_playing():
         server = ctx.message.guild
