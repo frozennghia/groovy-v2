@@ -59,10 +59,15 @@ async def play(ctx, song_url):
             filename = await yt_wrapper.YTDLSource.from_url(song_url, loop=bot.loop)
             # this line only works for mac, will need to change the path to the ffmpeg executable for windows
             voice_channel.play(discord.FFmpegPCMAudio(executable="/usr/local/bin/ffmpeg", source=filename))
-        await ctx.send('**Now playing:** {}'.format(filename))
+        await ctx.send('**Now playing:** {}'.format(format_song_name(filename)))
         await wait_to_finish(ctx)
     else:
         await ctx.send("Unknown Error")
+
+
+def format_song_name(song_name):
+    raw_list = song_name.split('_')
+    return ' '.join(raw_list[:len(raw_list) - 2])
 
 
 async def wait_to_finish(ctx):
@@ -76,6 +81,7 @@ async def skip(ctx):
     if is_currently_playing(ctx):
         await stop(ctx)
         asyncio.create_task(queue_play(ctx, "", is_skipped=True))
+
 
 @bot.command(name='pause', help='This command pauses the song')
 async def pause(ctx):
