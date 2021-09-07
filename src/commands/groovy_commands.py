@@ -8,9 +8,9 @@ from discord.ext.commands import bot
 from src.youtube_wrap import yt_wrapper
 
 intents = discord.Intents().all()
-song_queue = asyncio.Queue()
 bot = commands.Bot(command_prefix="-", intents=intents)
 bot.is_connected = False
+bot.song_queue = asyncio.Queue()
 
 
 @bot.command(name='join', help='Tells the bot to join the voice channel')
@@ -41,12 +41,12 @@ async def queue_play(ctx, *args, is_skipped=False):
     url = ' '.join(args)
     await join(ctx)
     if not is_skipped:
-        song_queue.put_nowait([ctx, url])
+        bot.song_queue.put_nowait([ctx, url])
     if is_currently_playing(ctx):
         await ctx.send('Queued {}'.format(url))
         return
-    while not song_queue.empty():
-        next_song = await song_queue.get()
+    while not bot.song_queue.empty():
+        next_song = await bot.song_queue.get()
         await asyncio.create_task(play(next_song[0], next_song[1]))
 
 
@@ -119,8 +119,8 @@ def is_currently_playing(ctx):
 async def list_songs(ctx):
     result_string = ''
     for i in range(bot.song_queue.qsize()):
-        song = bot.song_queue.get()
+        song = await bot.song_queue.get()
         result_string += song[1]
         result_string += '\n'
         bot.song_queue.put_nowait(song)
-    ctx.send(result_string)
+    await ctx.send(result_string)
