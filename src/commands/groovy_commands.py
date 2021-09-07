@@ -64,8 +64,6 @@ async def play(ctx, song_url):
     else:
         await ctx.send("Unknown Error")
 
-def format_url(url):
-    return url.replace(' ', '%20')
 
 async def wait_to_finish(ctx):
     voice_client = ctx.message.guild.voice_client
