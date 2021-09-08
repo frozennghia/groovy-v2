@@ -48,7 +48,6 @@ async def queue_play(ctx, *args, is_skipped=False):
         return
     while not bot.song_queue.empty():
         next_song = await bot.song_queue.get()
-        bot.current_song = next_song[1]  # changed
         await asyncio.create_task(play(next_song[0], next_song[1]))
 
 
