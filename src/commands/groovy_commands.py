@@ -122,7 +122,6 @@ async def list_songs(ctx):
     if bot.song_queue.empty():
         await ctx.send('No songs in list!\n')
         return
-
     result_string = 'Song List:\n1: {}\n'.format(bot.current_song)
     for i in range(bot.song_queue.qsize()):
         song = await bot.song_queue.get()
