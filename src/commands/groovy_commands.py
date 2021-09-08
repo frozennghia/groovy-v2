@@ -11,7 +11,7 @@ intents = discord.Intents().all()
 bot = commands.Bot(command_prefix="-", intents=intents)
 bot.is_connected = False
 bot.song_queue = asyncio.Queue()
-
+bot.current_song = ''
 
 @bot.command(name='join', help='Tells the bot to join the voice channel')
 async def join(ctx):
@@ -47,10 +47,12 @@ async def queue_play(ctx, *args, is_skipped=False):
         return
     while not bot.song_queue.empty():
         next_song = await bot.song_queue.get()
+        bot.current_song = next_song[1] # changed 
         await asyncio.create_task(play(next_song[0], next_song[1]))
 
 
 async def play(ctx, song_url):
+    bot.current_song = song_url
     voice_client = ctx.message.guild.voice_client
     if ctx.message.author.voice and not voice_client.is_playing():
         server = ctx.message.guild
@@ -117,9 +119,15 @@ def is_currently_playing(ctx):
 
 @bot.command(name='list', help='Lists all songs')
 async def list_songs(ctx):
-    result_string = ''
+    if bot.song_queue.empty():
+        await ctx.send('No songs in list!\n')
+        return
+
+    result_string = 'Song List:\n1: {}\n'.format(bot.current_song)
     for i in range(bot.song_queue.qsize()):
         song = await bot.song_queue.get()
+        result_string += str(i + 2)
+        result_string += ': '
         result_string += song[1]
         result_string += '\n'
         bot.song_queue.put_nowait(song)
