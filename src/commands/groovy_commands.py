@@ -13,6 +13,7 @@ bot.is_connected = False
 bot.song_queue = asyncio.Queue()
 bot.current_song = ''
 
+
 @bot.command(name='join', help='Tells the bot to join the voice channel')
 async def join(ctx):
     if not ctx.message.author.voice:
@@ -47,7 +48,7 @@ async def queue_play(ctx, *args, is_skipped=False):
         return
     while not bot.song_queue.empty():
         next_song = await bot.song_queue.get()
-        bot.current_song = next_song[1] # changed 
+        bot.current_song = next_song[1]  # changed
         await asyncio.create_task(play(next_song[0], next_song[1]))
 
 
